@@ -1,19 +1,14 @@
 # Finance Tracker
 
 ## Description
-This is a simple finance tracker that helps users manage their finances by tracking their assets, income and expenses. It allows users to set goals and track their progress towards those goals. It also provides a summary of the user's financial status, including total assets, total income, total expenses, and net worth. Additional features include AI for personalised financial advice and financial news updates regarding the user's assets.
+Simple finance tracker that can track income, expenses, assets, budgets and financial goals and even help users split expenses with others. It aims to analyse user's financial patterns and provide personalised advice using AI. Lastly, it will integrate with a Telegram bot for convenient access and usage.
 
 ## Features
-- Track assets, income and expenses
-- Set financial goals and track progress
-- Summary of monthly financial status
-- AI for personalised financial advice
-- Financial news updates regarding user's assets
+- Track income, expenses, assets, budgets, and financial goals
+- Analyse financial patterns and provide personalised advice using AI
+- Split expenses with others
+- Integration with a Telegram bot for easy access
 
 ## Technologies Used
 - Java Spring Boot
 - Angular
-
-## Acess
-
-- Website: 
