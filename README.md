@@ -12,3 +12,19 @@ Simple finance tracker that can track income, expenses, assets, budgets and fina
 ## Technologies Used
 - Java Spring Boot
 - Angular
+
+## Local Development
+
+1. Start the PostgreSQL container:
+	```bash
+	docker compose up -d
+	```
+2. Run the Spring Boot backend:
+	```bash
+	cd backend
+	./mvnw spring-boot:run
+	```
+3. When finished, stop the container:
+	```bash
+	docker compose down
+	```
