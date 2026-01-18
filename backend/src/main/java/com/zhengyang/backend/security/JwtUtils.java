@@ -21,6 +21,9 @@ public class JwtUtils {
     @Value("${jwt.expiration}")
     private long jwtExpirationMs;
 
+    @Value("${jwt.refresh.expiration}")
+    private long jwtRefreshExpirationMs;
+
     // get signing key from secret
     private SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
@@ -39,10 +42,20 @@ public class JwtUtils {
 
     // generate JWT token for username
     public String generateToken(String username) {
+        return generateTokenWithExpiration(username, jwtExpirationMs);
+    }
+
+    // generate refresh token for username
+    public String generateRefreshToken(String username) {
+        return generateTokenWithExpiration(username, jwtRefreshExpirationMs);
+    }
+
+    // generate token with custom expiration
+    private String generateTokenWithExpiration(String username, long expirationMs) {
         return Jwts.builder()
             .setSubject(username)
             .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+            .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
             .signWith(getSigningKey(), SignatureAlgorithm.HS256)
             .compact();
     }
@@ -60,5 +73,10 @@ public class JwtUtils {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    // get expiration time in milliseconds
+    public long getRefreshExpirationMs() {
+        return jwtRefreshExpirationMs;
     }
 }

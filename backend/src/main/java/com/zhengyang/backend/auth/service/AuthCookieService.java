@@ -1,4 +1,4 @@
-package com.zhengyang.backend.auth;
+package com.zhengyang.backend.auth.service;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,13 +15,26 @@ import java.util.Optional;
 public class AuthCookieService {
 
     public static final String AUTH_COOKIE = "auth_token";
+    public static final String REFRESH_COOKIE = "refresh_token";
 
     public void setAuthCookie(HttpServletResponse response, String token, boolean secure) {
         ResponseCookie cookie = ResponseCookie.from(AUTH_COOKIE, token)
             .httpOnly(true)
             .secure(secure)
             .path("/")
-            .sameSite("None")
+            .sameSite("Strict")
+            .maxAge(Duration.ofDays(1))
+            .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
+
+    public void setRefreshCookie(HttpServletResponse response, String token, boolean secure) {
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE, token)
+            .httpOnly(true)
+            .secure(secure)
+            .path("/api/auth")
+            .sameSite("Strict")
             .maxAge(Duration.ofDays(7))
             .build();
 
@@ -33,7 +46,19 @@ public class AuthCookieService {
             .httpOnly(true)
             .secure(secure)
             .path("/")
-            .sameSite("None")
+            .sameSite("Strict")
+            .maxAge(Duration.ZERO)
+            .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
+
+    public void clearRefreshCookie(HttpServletResponse response, boolean secure) {
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE, "")
+            .httpOnly(true)
+            .secure(secure)
+            .path("/api/auth")
+            .sameSite("Strict")
             .maxAge(Duration.ZERO)
             .build();
 
@@ -41,12 +66,20 @@ public class AuthCookieService {
     }
 
     public Optional<String> extractCookie(HttpServletRequest request) {
+        return extractCookie(request, AUTH_COOKIE);
+    }
+
+    public Optional<String> extractRefreshCookie(HttpServletRequest request) {
+        return extractCookie(request, REFRESH_COOKIE);
+    }
+
+    private Optional<String> extractCookie(HttpServletRequest request, String cookieName) {
         if (request.getCookies() == null) {
             return Optional.empty();
         }
 
         return Arrays.stream(request.getCookies())
-            .filter(c -> AUTH_COOKIE.equals(c.getName()))
+            .filter(c -> cookieName.equals(c.getName()))
             .map(Cookie::getValue)
             .findFirst();
     }

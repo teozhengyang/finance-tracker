@@ -1,8 +1,6 @@
-package com.zhengyang.backend.user.controller;
+package com.zhengyang.backend.user;
 
 import com.zhengyang.backend.user.dto.UserResponse;
-import com.zhengyang.backend.user.UserEntity;
-import com.zhengyang.backend.user.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,23 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-    
+
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
     
-    // get user profile
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> getProfile(Authentication authentication) {
-        String username = authentication.getName();
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
-        UserResponse response = new UserResponse(
-            user.getUsername(),
-            user.getEmail(),
-            user.isAdmin()
-        );
-        
+        UserResponse response = userService.getProfile(authentication.getName());
         return ResponseEntity.ok(response);
     }
 }

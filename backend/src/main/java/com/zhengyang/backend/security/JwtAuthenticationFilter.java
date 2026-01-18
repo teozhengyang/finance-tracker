@@ -1,6 +1,6 @@
 package com.zhengyang.backend.security;
 
-import com.zhengyang.backend.auth.AuthCookieService;
+import com.zhengyang.backend.auth.service.AuthCookieService;
 import com.zhengyang.backend.user.UserService;
 
 import jakarta.servlet.FilterChain;

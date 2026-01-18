@@ -1,7 +1,8 @@
-package com.zhengyang.backend.auth;
+package com.zhengyang.backend.auth.service;
 
 import com.zhengyang.backend.auth.dto.LoginResponse;
 import com.zhengyang.backend.auth.dto.RegisterResponse;
+import com.zhengyang.backend.auth.RefreshTokenEntity;
 import com.zhengyang.backend.auth.dto.LoginRequest;
 import com.zhengyang.backend.auth.dto.RegisterRequest;
 import com.zhengyang.backend.user.UserEntity;
@@ -26,6 +27,9 @@ public class AuthService {
     
     @Autowired
     private AuthenticationManager authenticationManager;
+    
+    @Autowired
+    private RefreshTokenService refreshTokenService;
     
     // register new user
     public RegisterResponse register(RegisterRequest request) {
@@ -61,7 +65,16 @@ public class AuthService {
         );
         
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        // token is generated in controller (set as cookie); response body should not include token/id
         return new LoginResponse(user.getUsername(), user.getEmail(), user.isAdmin());
+    }
+    
+    // refresh access token using refresh token
+    public String refreshAccessToken(String refreshToken) {
+        RefreshTokenEntity token = refreshTokenService.findByToken(refreshToken)
+            .orElseThrow(() -> new RuntimeException("Refresh token not found"));
+        
+        refreshTokenService.verifyExpiration(token);
+        
+        return token.getUser().getUsername();
     }
 }
