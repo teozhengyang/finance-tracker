@@ -26,6 +26,7 @@ public class RefreshTokenService {
     private JwtUtils jwtUtils;
     
     // create a new refresh token for user
+    @Transactional
     public RefreshTokenEntity createRefreshToken(String username) {
         UserEntity user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
@@ -45,6 +46,7 @@ public class RefreshTokenService {
     }
     
     // verify refresh token expiration
+    @Transactional
     public RefreshTokenEntity verifyExpiration(RefreshTokenEntity token) {
         if (token.isExpired()) {
             refreshTokenRepository.delete(token);
