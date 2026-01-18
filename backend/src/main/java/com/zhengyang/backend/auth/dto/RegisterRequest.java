@@ -1,4 +1,4 @@
-package com.zhengyang.backend.dto;
+package com.zhengyang.backend.auth.dto;
 
 import lombok.Data;
 

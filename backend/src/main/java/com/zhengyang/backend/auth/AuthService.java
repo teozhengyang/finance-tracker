@@ -1,11 +1,12 @@
-package com.zhengyang.backend.service;
+package com.zhengyang.backend.auth;
 
-import com.zhengyang.backend.dto.AuthResponse;
-import com.zhengyang.backend.dto.LoginRequest;
-import com.zhengyang.backend.dto.RegisterRequest;
-import com.zhengyang.backend.entity.User;
-import com.zhengyang.backend.repository.UserRepository;
-import com.zhengyang.backend.security.JwtUtils;
+import com.zhengyang.backend.auth.dto.LoginResponse;
+import com.zhengyang.backend.auth.dto.RegisterResponse;
+import com.zhengyang.backend.auth.dto.LoginRequest;
+import com.zhengyang.backend.auth.dto.RegisterRequest;
+import com.zhengyang.backend.user.UserEntity;
+import com.zhengyang.backend.user.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
+    
     @Autowired
     private UserRepository userRepository;
     
@@ -23,12 +25,10 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
     
     @Autowired
-    private JwtUtils jwtUtils;
-    
-    @Autowired
     private AuthenticationManager authenticationManager;
     
-    public AuthResponse register(RegisterRequest request) {
+    // register new user
+    public RegisterResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("Username already exists");
         }
@@ -37,20 +37,22 @@ public class AuthService {
             throw new RuntimeException("Email already exists");
         }
         
-        User user = new User();
+        UserEntity user = new UserEntity();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         
         user = userRepository.save(user);
         
-        String token = jwtUtils.generateToken(user.getUsername());
-        
-        return new AuthResponse(token, "Bearer", user.getId(), 
-                               user.getUsername(), user.getEmail());
+        return new RegisterResponse(
+                       user.getUsername(), user.getEmail(), user.isAdmin());
     }
     
-    public AuthResponse login(LoginRequest request) {
+    // login user
+    public LoginResponse login(LoginRequest request) {
+        UserEntity user = userRepository.findByUsername(request.getUsername())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 request.getUsername(), 
@@ -59,12 +61,7 @@ public class AuthService {
         );
         
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtUtils.generateToken(request.getUsername());
-        
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
-        return new AuthResponse(token, "Bearer", user.getId(), 
-                               user.getUsername(), user.getEmail());
+        // token is generated in controller (set as cookie); response body should not include token/id
+        return new LoginResponse(user.getUsername(), user.getEmail(), user.isAdmin());
     }
 }

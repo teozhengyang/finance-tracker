@@ -1,7 +1,7 @@
-package com.zhengyang.backend.controller;
+package com.zhengyang.backend.admin;
 
-import com.zhengyang.backend.entity.User;
-import com.zhengyang.backend.repository.UserRepository;
+import com.zhengyang.backend.user.dto.UserResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,13 +14,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
+    
     @Autowired
-    private UserRepository userRepository;
+    private AdminService adminService;
 
+    // return all users
     @GetMapping("/users")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<List<User>> listUsers() {
-        List<User> users = userRepository.findAll();
+    public ResponseEntity<List<UserResponse>> listUsers() {
+        List<UserResponse> users = adminService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 }
